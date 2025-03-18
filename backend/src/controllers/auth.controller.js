@@ -43,10 +43,12 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
+    // if this user is new, generate a token and save the user into the db
     if (newUser) {
       generateToken(newUser._id, res);
       await newUser.save();
 
+      //Send the information as a response json
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
@@ -62,14 +64,51 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// @desc Login using the password
+// @route POST api/auth/login
+// @access Public
 export const login = async (req, res) => {
-  res.json({
-    data: "You hit the login endpoint",
-  });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    // If no user found, return error
+    if (!user) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Check if password is correct
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // If password is correct generate a token and send the cookie
+    generateToken(user._id, res);
+
+    // Send the user details back as a response json
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ error: "Interal Server Error" });
+  }
 };
 
+// @desc Logout and destroy the token
+// @route POST api/auth/login
+// @access Public
 export const logout = async (req, res) => {
-  res.json({
-    data: "You hit the logout endpoint",
-  });
+  try {
+    // Remove the token and send a response json
+    res.cookie("jwt-bonkers", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ error: "Interal Server Error" });
+  }
 };
