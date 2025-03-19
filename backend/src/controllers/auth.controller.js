@@ -112,3 +112,15 @@ export const logout = async (req, res) => {
     res.status(500).json({ error: "Interal Server Error" });
   }
 };
+
+// @desc Check if user is authenticated or not
+// @route POST api/auth/check
+// @access Private
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ error: "Interal Server Error" });
+  }
+};
