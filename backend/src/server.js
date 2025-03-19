@@ -1,7 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+
 import { connectDB } from "./lib/db.js";
 
 dotenv.config();
@@ -13,9 +16,7 @@ app.use(cookieParser()); // To be able to read cookies
 
 app.use("/api/auth", authRoutes);
 
-app.use("/api/users", (req, res) => {
-  res.json({ message: "Users endpoint placeholder" });
-});
+app.use("/api/users", userRoutes);
 
 app.use("/api/groups", (req, res) => {
   res.json({ message: "Groups endpoint placeholder" });

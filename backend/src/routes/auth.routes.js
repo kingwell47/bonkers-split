@@ -8,8 +8,8 @@ router.post("/register", registerUser);
 router.post("/login", login);
 router.post("/logout", logout);
 
-router.put("/update-user", protectRoute, () => {
-  console.log("Success");
+router.put("/update-user", protectRoute, (req, res) => {
+  res.json({ message: "Successfully accessed protected route" });
 });
 
 export default router;
