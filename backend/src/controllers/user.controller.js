@@ -14,7 +14,10 @@ export const updateProfile = async (req, res) => {
       return res.status(400).json({ error: "Profile pic is required" });
     }
 
+    // Upload the profile pic to cloudinary
     const uploadResponse = await cloudinary.uploader.upload(profilePic);
+
+    // Update the user with the profile pic URL
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
@@ -25,7 +28,34 @@ export const updateProfile = async (req, res) => {
 
     res.status(200).json(updatedUser);
   } catch (error) {
-    console.log("error in update profile controller", error.message);
+    console.log("error in updateUser controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const searchUser = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is requried" });
+    }
+
+    const foundUser = await User.findOne({ email }).select("-password");
+
+    if (!foundUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      _id: foundUser._id,
+      email: foundUser.email,
+      fullName: foundUser.fullName,
+      profilePic: foundUser.profilePic,
+      no_of_groups: foundUser.groups.length,
+    });
+  } catch (error) {
+    console.log("error in searchUser controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

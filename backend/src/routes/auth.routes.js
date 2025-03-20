@@ -13,6 +13,7 @@ router.post("/register", registerUser);
 router.post("/login", login);
 router.post("/logout", logout);
 
+// Check Authentication
 router.get("/check", protectRoute, checkAuth);
 
 export default router;
