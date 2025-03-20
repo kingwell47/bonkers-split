@@ -18,6 +18,10 @@ const groupSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true }
 );
