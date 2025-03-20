@@ -71,7 +71,25 @@ export const getGroups = async (req, res) => {
 
 // Get details for specific group
 export const getGroupDetails = async (req, res) => {
-  res.json({ message: "Under Construction" });
+  try {
+    const { groupId } = req.params;
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: "Invalid groupId" });
+    }
+
+    const groupDetails = await Group.findById(groupId);
+
+    if (!groupDetails) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    res.status(200).json(groupDetails);
+  } catch (error) {
+    console.log("error in getGroupDetails controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // Update group details
