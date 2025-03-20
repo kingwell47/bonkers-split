@@ -2,7 +2,7 @@ import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.models.js";
 
 // @desc Update the user profile
-// @route POST api/users/update-user
+// @route PUT api/users/update-user
 // @access Private
 // Currently only profile picture can be updated
 export const updateProfile = async (req, res) => {
@@ -33,6 +33,9 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+// @desc Search for user using email
+// @route POST api/users/search
+// @access Private
 export const searchUser = async (req, res) => {
   try {
     const { email } = req.body;
@@ -66,6 +69,9 @@ export const searchUser = async (req, res) => {
   }
 };
 
+// @desc Delete own account
+// @route DELETE api/users/me
+// @access Private
 export const deleteOwnAccount = async (req, res) => {
   try {
     // Allows user to delete own account
