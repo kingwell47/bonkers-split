@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User from "../models/user.models.js";
 import Group from "../models/group.model.js";
 
@@ -36,7 +37,36 @@ export const createGroup = async (req, res) => {
 
 // Get all groups for current user
 export const getGroups = async (req, res) => {
-  res.json({ message: "Under Construction" });
+  try {
+    const userGroups = req.user.groups;
+
+    // Check if Ids are Valid
+    const validIds = userGroups.filter((id) =>
+      mongoose.Types.ObjectId.isValid(id)
+    );
+
+    // Fetch groups matching the valid IDs, selecting only 'name' and 'description' fields,
+    // and adding the count of members
+    const populatedGroups = await Group.aggregate([
+      {
+        $match: {
+          _id: { $in: validIds },
+        },
+      },
+      {
+        $project: {
+          groupName: 1,
+          description: 1,
+          memberCount: { $size: "$members" },
+        },
+      },
+    ]);
+
+    res.status(200).json(populatedGroups);
+  } catch (error) {
+    console.log("error in getGroups controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // Get details for specific group
