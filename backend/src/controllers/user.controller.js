@@ -36,9 +36,14 @@ export const updateProfile = async (req, res) => {
 export const searchUser = async (req, res) => {
   try {
     const { email } = req.body;
+    const currentUserEmail = req.user.email;
 
     if (!email) {
       return res.status(400).json({ error: "Email is requried" });
+    }
+
+    if (email == currentUserEmail) {
+      return res.status(400).json({ message: "You have found...yourself!" });
     }
 
     const foundUser = await User.findOne({ email }).select("-password");
@@ -47,15 +52,29 @@ export const searchUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Only send some information
     res.status(200).json({
       _id: foundUser._id,
       email: foundUser.email,
       fullName: foundUser.fullName,
       profilePic: foundUser.profilePic,
-      no_of_groups: foundUser.groups.length,
+      groupsNumber: foundUser.groups.length,
     });
   } catch (error) {
     console.log("error in searchUser controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const deleteOwnAccount = async (req, res) => {
+  try {
+    // Allows user to delete own account
+    // PLACEHOLDER FOR NOW
+    res.status(200).json({
+      message: "Functionality to be implemented",
+    });
+  } catch (error) {
+    console.log("error in deleteOwnAccount controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
