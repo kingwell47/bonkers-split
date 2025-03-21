@@ -5,6 +5,7 @@ import {
   createGroup,
   deleteGroup,
   getGroupDetails,
+  getGroupMembers,
   getGroups,
   removeMember,
   updateGroup,
@@ -32,6 +33,14 @@ router.put("/:groupId", protectRoute, checkGroupCreator, updateGroup);
 
 // Delete a group
 router.delete("/:groupId", protectRoute, checkGroupCreator, deleteGroup);
+
+// Get all members of a group
+router.get(
+  "/:groupId/members",
+  protectRoute,
+  checkGroupMembership,
+  getGroupMembers
+);
 
 // Add a member to the group
 router.post(

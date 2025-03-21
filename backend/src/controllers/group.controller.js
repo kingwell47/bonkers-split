@@ -196,7 +196,36 @@ export const deleteGroup = async (req, res) => {
   }
 };
 
-// Add a member to the group
+// @desc Get all members of a group
+// @route GET api/groups/:groupId/members
+// @access Private, Member Only
+export const getGroupMembers = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: "Invalid groupId" });
+    }
+
+    // Find group by Id
+    const group = await Group.findById(groupId).populate(
+      "members",
+      "fullName email profilePic"
+    );
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    res.status(200).json(group.members);
+  } catch (error) {
+    console.log("error in getGroupMembers controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// @desc Add a member to the group
 // @route POST api/groups/:groupId/members/:memberId
 // @access Private, Creator Only
 export const addMember = async (req, res) => {
@@ -249,7 +278,52 @@ export const addMember = async (req, res) => {
   }
 };
 
-// Remove a member from the group
+// @desc Remove a member from the group
+// @route DELETE api/groups/:groupId/members/:memberId
+// @access Private, Creator Only
 export const removeMember = async (req, res) => {
-  res.json({ message: "Under Construction" });
+  try {
+    const { groupId, memberId } = req.params;
+
+    // Check if groupId and memberId are valid
+    if (
+      !mongoose.Types.ObjectId.isValid(groupId) ||
+      !mongoose.Types.ObjectId.isValid(memberId)
+    ) {
+      return res.status(400).json({ error: "Invalid groupId or memberId" });
+    }
+
+    // Find group by Id
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Check if member is in the group
+    if (!group.members.includes(memberId)) {
+      return res
+        .status(400)
+        .json({ error: "Member does not exist in the group" });
+    }
+
+    // Check if member is the creator of the group
+    if (group.creator.toString() === memberId) {
+      return res.status(400).json({ error: "Cannot remove the creator" });
+    }
+
+    // Remove member from the group
+    await Group.findByIdAndUpdate(groupId, { $pull: { members: memberId } });
+
+    // Update the user's groups array
+    await User.findByIdAndUpdate(memberId, {
+      $pull: { groups: groupId },
+    });
+
+    res.status(200).json({ message: "Member removed successfully" });
+  } catch (error) {
+    console.log("error in removeMember controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
+ 
