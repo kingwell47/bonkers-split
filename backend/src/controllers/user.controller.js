@@ -1,6 +1,26 @@
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.models.js";
 
+export const getUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).select("-password").populate({
+      path: "groups",
+      select: "groupName description",
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log("error in getUser controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 // @desc Update the user profile
 // @route PUT api/users/update-user
 // @access Private
