@@ -20,6 +20,7 @@ export const createGroup = async (req, res) => {
       description: req.body.description,
       members: [currentUserId],
       private: req.body.private,
+      creator: currentUserId,
     });
 
     await newGroup.save();
@@ -35,7 +36,9 @@ export const createGroup = async (req, res) => {
   }
 };
 
-// Get all groups for current user
+// @desc Get all groups for current user
+// @route GET api/groups
+// @access Private
 export const getGroups = async (req, res) => {
   try {
     const userGroups = req.user.groups;
@@ -69,7 +72,9 @@ export const getGroups = async (req, res) => {
   }
 };
 
-// Get details for specific group
+// @desc Get details for specific group
+// @route GET api/groups/:groupId
+// @access Private
 export const getGroupDetails = async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -92,7 +97,9 @@ export const getGroupDetails = async (req, res) => {
   }
 };
 
-// Update group details
+// @desc Update group details
+// @route PUT api/groups/:groupId
+// @access Private, Creator Only
 export const updateGroup = async (req, res) => {
   try {
     const { newGroupName, newGroupDescription, newGroupPrivate } = req.body;
@@ -150,14 +157,96 @@ export const updateGroup = async (req, res) => {
   }
 };
 
-// Delete a group
+// @desc Delete a group
+// @route DELETE api/groups/:groupId
+// @access Private, Creator Only
 export const deleteGroup = async (req, res) => {
-  res.json({ message: "Under Construction" });
+  try {
+    const { groupId } = req.params;
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: "Invalid groupId" });
+    }
+
+    // Find group by Id
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Check if the user is the creator of the group
+    if (group.creator.toString() !== req.user.id) {
+      return res.status(401).json({ error: "You are not authorized" });
+    }
+
+    // Update the user's groups array
+    await User.findByIdAndUpdate(req.user.id, {
+      $pull: { groups: groupId },
+    });
+
+    // Delete the group
+    await Group.findByIdAndDelete(groupId);
+
+    res.status(200).json({ message: "Group deleted successfully" });
+  } catch (error) {
+    console.log("error in deleteGroup controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // Add a member to the group
+// @route POST api/groups/:groupId/members/:memberId
+// @access Private, Creator Only
 export const addMember = async (req, res) => {
-  res.json({ message: "Under Construction" });
+  try {
+    const { groupId, memberId } = req.params;
+
+    // Check if groupId and memberId are valid
+    if (
+      !mongoose.Types.ObjectId.isValid(groupId) ||
+      !mongoose.Types.ObjectId.isValid(memberId)
+    ) {
+      return res.status(400).json({ error: "Invalid groupId or memberId" });
+    }
+
+    // Find group by Id
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Check if member is already in the group
+    if (group.members.includes(memberId)) {
+      return res
+        .status(400)
+        .json({ error: "Member already exists in the group" });
+    }
+
+    // Check if member exists
+    const member = await User.findById(memberId);
+
+    if (!member) {
+      return res.status(404).json({ message: "Member not found" });
+    }
+
+    // Add member to the group
+    await Group.findByIdAndUpdate(groupId, {
+      $push: { members: memberId },
+    });
+
+    // Update the user's groups array
+    await User.findByIdAndUpdate(memberId, {
+      $push: { groups: groupId },
+    });
+
+    res.status(200).json({ message: "Member added successfully" });
+  } catch (error) {
+    console.log("error in addMember controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // Remove a member from the group

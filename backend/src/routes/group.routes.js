@@ -34,7 +34,12 @@ router.put("/:groupId", protectRoute, checkGroupCreator, updateGroup);
 router.delete("/:groupId", protectRoute, checkGroupCreator, deleteGroup);
 
 // Add a member to the group
-router.post("/:groupId/members", protectRoute, checkGroupCreator, addMember);
+router.post(
+  "/:groupId/members/:memberId",
+  protectRoute,
+  checkGroupCreator,
+  addMember
+);
 
 // Remove a member from the group
 router.delete(
