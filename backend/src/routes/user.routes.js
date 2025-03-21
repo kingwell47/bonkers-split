@@ -31,4 +31,6 @@ router.delete(
   leaveGroup
 );
 
+// Get all expenses for the current user
+
 export default router;

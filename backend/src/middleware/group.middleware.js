@@ -2,7 +2,7 @@ import Group from "../models/group.model.js";
 
 export const checkGroupMembership = async (req, res, next) => {
   try {
-    const groupId = req.params.groupId; // Group ID passed from Params
+    const { groupId } = req.params; // Group ID passed from Params
     const userId = req.user.id;
 
     // Find Group, return error if not found
@@ -10,7 +10,7 @@ export const checkGroupMembership = async (req, res, next) => {
 
     if (!group) {
       return res.status(404).json({
-        error: "Group not found",
+        error: "Group Middleware: Group not found",
       });
     }
 

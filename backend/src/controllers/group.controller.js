@@ -41,10 +41,13 @@ export const createGroup = async (req, res) => {
 // @access Private
 export const getGroups = async (req, res) => {
   try {
-    const userGroups = req.user.groups;
+    const userId = req.user.id;
+
+    // Find user by Id
+    const user = await User.findById(userId);
 
     // Check if Ids are Valid
-    const validIds = userGroups.filter((id) =>
+    const validIds = user.groups.filter((id) =>
       mongoose.Types.ObjectId.isValid(id)
     );
 
@@ -326,4 +329,3 @@ export const removeMember = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
- 
