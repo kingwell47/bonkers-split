@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.models.js";
+import Group from "../models/group.model.js";
 
 // @desc Get the user with groups populated
 // @route GET api/users/me
@@ -104,6 +106,56 @@ export const deleteOwnAccount = async (req, res) => {
     });
   } catch (error) {
     console.log("error in deleteOwnAccount controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// @desc Leave a group
+// @route DELETE api/users/leave-group/:groupId
+// @access Private, Member Only
+export const leaveGroup = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { groupId } = req.params;
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: "Invalid groupId" });
+    }
+
+    // Find group by Id
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Check if the user is a member of the group
+    if (!group.members.includes(userId)) {
+      return res
+        .status(400)
+        .json({ error: "You are not a member of this group" });
+    }
+
+    // Check if the user is the creator of the group
+    if (group.creator.toString() === userId) {
+      return res
+        .status(400)
+        .json({ error: "You cannot leave a group you created" });
+    }
+
+    // Remove the user from the group
+    group.members.pull(userId);
+    await group.save();
+
+    // Remove the group from the user
+    await User.findByIdAndUpdate(userId, {
+      $pull: { groups: groupId },
+    });
+
+    res.status(200).json({ message: "You have left the group" });
+  } catch (error) {
+    console.log("error in leaveGroup controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
