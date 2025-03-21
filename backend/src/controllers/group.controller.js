@@ -94,7 +94,40 @@ export const getGroupDetails = async (req, res) => {
 
 // Update group details
 export const updateGroup = async (req, res) => {
-  res.json({ message: "Under Construction" });
+  try {
+    const { newGroupName, newGroupDescription, newGroupPrivate } = req.body;
+    const { groupId } = req.params;
+
+    // Check if groupName is filled in
+    if (!newGroupName) {
+      return res.status(400).json({ error: "Group name is required" });
+    }
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: "Invalid groupId" });
+    }
+
+    // Find group by Id and update
+    const group = await Group.findByIdAndUpdate(
+      groupId,
+      {
+        groupName: newGroupName,
+        description: newGroupDescription,
+        private: newGroupPrivate,
+      },
+      { new: true }
+    ).select("-members");
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    res.status(200).json(group);
+  } catch (error) {
+    console.log("error in updateGroup controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 // Delete a group

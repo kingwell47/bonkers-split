@@ -1,6 +1,9 @@
 import cloudinary from "../lib/cloudinary.js";
 import User from "../models/user.models.js";
 
+// @desc Get the user with groups populated
+// @route GET api/users/me
+// @access Private
 export const getUser = async (req, res) => {
   try {
     const userId = req.user._id;
