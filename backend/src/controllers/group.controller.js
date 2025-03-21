@@ -108,8 +108,30 @@ export const updateGroup = async (req, res) => {
       return res.status(400).json({ error: "Invalid groupId" });
     }
 
-    // Find group by Id and update
-    const group = await Group.findByIdAndUpdate(
+    // Find group by Id
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    const oldGroup = {
+      oldGroupName: group.groupName,
+      oldGroupDescription: group.description,
+      oldGroupPrivate: group.private,
+    };
+
+    // Check if any changes are made
+    if (
+      oldGroup.oldGroupName === newGroupName &&
+      oldGroup.oldGroupDescription === newGroupDescription &&
+      oldGroup.oldGroupPrivate === newGroupPrivate
+    ) {
+      return res.status(400).json({ error: "No changes made" });
+    }
+
+    // Update group details
+    const updatedGroup = await Group.findByIdAndUpdate(
       groupId,
       {
         groupName: newGroupName,
@@ -119,11 +141,9 @@ export const updateGroup = async (req, res) => {
       { new: true }
     ).select("-members");
 
-    if (!group) {
-      return res.status(404).json({ message: "Group not found" });
-    }
-
-    res.status(200).json(group);
+    res
+      .status(200)
+      .json({ message: "Group updated successfully", oldGroup, updatedGroup });
   } catch (error) {
     console.log("error in updateGroup controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
