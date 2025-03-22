@@ -87,6 +87,19 @@ export const addExpense = async (req, res) => {
 // Get all expenses for a group
 export const getGroupExpenses = async (req, res) => {
   try {
+    const { groupId } = req.params;
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({ error: "Invalid groupId" });
+    }
+
+    const groupExpenses = await Expense.find({ group: groupId })
+      .populate("group", ["groupName"])
+      .populate("paidBy", ["fullName"])
+      .populate("split.user", ["fullName"]);
+
+    res.status(200).json(groupExpenses);
   } catch (error) {
     console.log("error in getGroupExpenses controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -194,7 +207,11 @@ export const updateExpense = async (req, res) => {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    res.status(200).json({ message: "Expense successfully updated", expense });
+    res.status(200).json({
+      success: true,
+      message: "Expense successfully updated",
+      expense,
+    });
   } catch (error) {
     console.log("error in updateExpense controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -221,9 +238,11 @@ export const deleteExpense = async (req, res) => {
       return res.status(404).json({ message: "Expense not found" });
     }
 
-    await expense.remove();
+    await Expense.findByIdAndDelete(expenseId);
 
-    res.status(200).json({ message: "Expense deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Expense deleted successfully" });
   } catch (error) {
     console.log("error in deleteExpense controller", error.message);
     res.status(500).json({ error: "Internal Server Error" });
