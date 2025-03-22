@@ -1,9 +1,17 @@
+import mongoose from "mongoose";
 import Group from "../models/group.model.js";
 
 export const checkGroupMembership = async (req, res, next) => {
   try {
     const { groupId } = req.params; // Group ID passed from Params
     const userId = req.user.id;
+
+    // Check if group ID is valid
+    if (!mongoose.Types.ObjectId.isValid(groupId)) {
+      return res.status(400).json({
+        error: "Invalid Group ID",
+      });
+    }
 
     // Find Group, return error if not found
     const group = await Group.findById(groupId);
