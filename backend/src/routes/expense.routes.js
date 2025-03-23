@@ -6,6 +6,7 @@ import {
   deleteExpense,
   getExpenseDetails,
   getGroupExpenses,
+  getUserExpenses,
   updateExpense,
 } from "../controllers/expense.controller.js";
 
@@ -16,6 +17,9 @@ router.post("/:groupId", protectRoute, checkGroupMembership, addExpense);
 
 // Get all expenses for a group
 router.get("/:groupId", protectRoute, checkGroupMembership, getGroupExpenses);
+
+// Get all expenses for a user
+router.get("/", protectRoute, getUserExpenses);
 
 // Get details for a specific expense
 router.get(

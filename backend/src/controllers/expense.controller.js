@@ -84,6 +84,31 @@ export const addExpense = async (req, res) => {
   }
 };
 
+// Get all expenses for a user
+export const getUserExpenses = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Check if groupId is valid
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid userId" });
+    }
+
+    // Find all expenses where the user is the paidBy user or the user is in the split array
+    const userExpenses = await Expense.find({
+      $or: [{ paidBy: userId }, { "split.user": userId }],
+    })
+      .populate("group", ["groupName"])
+      .populate("paidBy", ["fullName"])
+      .populate("split.user", ["fullName"]);
+
+    res.status(200).json(userExpenses);
+  } catch (error) {
+    console.log("error in getUserExpenses controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 // Get all expenses for a group
 export const getGroupExpenses = async (req, res) => {
   try {
