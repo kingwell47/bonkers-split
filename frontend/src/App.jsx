@@ -8,7 +8,7 @@ import ProfilePage from "./pages/ProfilePage";
 import GroupsPage from "./pages/GroupsPage";
 import { useAuthStore } from "./store/useAuthStore";
 
-import { Loader } from "lucide-react";
+import { Toaster } from "react-hot-toast";
 
 import { useEffect } from "react";
 
@@ -24,7 +24,7 @@ function App() {
   if (isCheckingAuth && !authUser) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
+        <span className="loading loading-bars loading-xl"></span>
       </div>
     );
   }
@@ -54,6 +54,8 @@ function App() {
           element={authUser ? <GroupsPage /> : <Navigate to="/login" />}
         />
       </Routes>
+
+      <Toaster />
     </div>
   );
 }
