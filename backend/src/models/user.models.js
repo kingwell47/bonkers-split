@@ -6,15 +6,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      maxLength: 70,
     },
     fullName: {
       type: String,
       required: true,
+      maxLength: 70,
     },
     password: {
       type: String,
       required: true,
-      minlength: 6,
+      minLength: 6,
     },
     profilePic: {
       type: String,

@@ -5,10 +5,12 @@ const groupSchema = new mongoose.Schema(
     groupName: {
       type: String,
       required: true,
+      maxLength: 70,
     },
     description: {
       type: String,
       default: "",
+      maxLength: 300,
     },
     members: [
       {

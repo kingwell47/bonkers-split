@@ -10,10 +10,12 @@ const expenseSchema = new mongoose.Schema(
     expenseName: {
       type: String,
       required: true,
+      maxLength: 70,
     },
     description: {
       type: String,
       default: "",
+      maxLength: 300,
     },
     expenseCategory: {
       type: String,
