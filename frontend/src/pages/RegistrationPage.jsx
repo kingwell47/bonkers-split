@@ -8,6 +8,7 @@ import {
   Mail,
   MessageSquare,
   User,
+  Wallet,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -50,7 +51,7 @@ const RegistrationPage = () => {
           {/* LOGO */}
           <div className="flex flex-col items-center gap-2 group">
             <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-              <MessageSquare className="size-6 text-primary" />
+              <Wallet className="size-6 text-primary" />
             </div>
             <h1 className="text-2xl font-bold mt-2">Create Account</h1>
             <p className="text-base-content/60">
@@ -133,7 +134,7 @@ const RegistrationPage = () => {
             >
               {isSigningUp ? (
                 <>
-                  <Loader2 className="size-5 animate-spin" />
+                  <span className="loading loading-bars loading-xs size-5" />
                   Loading...
                 </>
               ) : (
@@ -152,57 +153,6 @@ const RegistrationPage = () => {
         </div>
       </div>
       {/* right side*/}
-      <div className="flex flex-col justify-center items-center p-6 sm:p-12">
-        Right Side
-        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
-          <fieldset className="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box">
-            <legend className="fieldset-legend font-medium">Register</legend>
-
-            <label className="fieldset-label label-text font-medium">
-              Full Name
-            </label>
-            <input
-              type="text"
-              className="input w-full"
-              placeholder="Juan Dela Cruz"
-            />
-            <label className="fieldset-label label-text font-medium">
-              Email
-            </label>
-            <input
-              type="email"
-              className="input validator w-full"
-              required
-              placeholder="juandelacruz@website.com"
-            />
-            <div className="validator-hint">Enter valid email address</div>
-
-            <label className="fieldset-label label-text font-medium">
-              Password
-            </label>
-            <input
-              type="password"
-              className="input validator w-full"
-              required
-              placeholder="Password"
-              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-              minLength="6"
-              title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
-            />
-            <p className="validator-hint">
-              Must be more than 8 characters, including
-              <br />
-              At least one number
-              <br />
-              At least one lowercase letter
-              <br />
-              At least one uppercase letter
-            </p>
-
-            <button className="btn btn-neutral mt-4">Create Account</button>
-          </fieldset>
-        </form>
-      </div>
     </div>
   );
 };
